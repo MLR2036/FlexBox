@@ -1,5 +1,9 @@
 import java.awt.*;
 import java.awt.event.*;
+import java.io.BufferedWriter;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.PrintWriter;
 import java.text.DecimalFormat;
 
 import javax.swing.*;
@@ -9,7 +13,7 @@ public class OrderForm extends JFrame {
  private BoxException invalid = new BoxException("invalid input"); 
  private BoxPropeties boxProps = new BoxPropeties();
  private DecimalFormat dFormat = new DecimalFormat("#.##");//will be used to round the outputs of costs to two dp
- private double totalCost = 0;
+ private static double totalCost = 0;
  private int index; 
  private OrderList orderList;
  private JPanel propertySelectors;
@@ -363,6 +367,12 @@ class FinalOrder implements ActionListener{
 	//message to display after 
 		JOptionPane.showMessageDialog(null,"You have ordered " + orderList.size() + " boxes. The total cost is: £" + dFormat.format(totalCost));
 	//Clear all orders from previous ordering session
+		try {
+			Save_to_file(orderList);
+		} catch (IOException e1) {
+			JOptionPane.showMessageDialog(null,"Error in generating order receipt");
+			
+		}
 		orderList.clear();
 		orders.setText("");
 		tCost.setText("");
@@ -371,6 +381,25 @@ class FinalOrder implements ActionListener{
 		
 	}
 	
+}
+
+private static void Save_to_file(OrderList l) throws IOException{
+	int fileindex = 0;
+	//crates a new file with the name customer + the file index to create different receipt per oder session
+	final FileWriter writeFile = new FileWriter("Customer" + Integer.toString(fileindex) + ".txt");
+	final BufferedWriter writeBuffer = new BufferedWriter(writeFile);
+	//sets up the PrintWriter to print to the file
+	 final PrintWriter print = new PrintWriter(writeBuffer);
+	 for (int i = 0; i < l.size(); i++){
+		 BoxPropeties bp = l.get(i);
+		 print.println(bp.toString());
+		 }
+	// close the print stream and provide system status
+	  //that the details have been saved
+	 print.println(totalCost);
+	 print.close();
+	 JOptionPane.showMessageDialog(null," order receipt generated find it in the main directory");
+	 fileindex +=1;
 }
 
 	
